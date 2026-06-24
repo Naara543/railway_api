@@ -1,0 +1,37 @@
+@URL = https://web-production-0f156.up.railway.app
+
+###
+# Obtener todos los usuarios
+GET {{URL}}/pasar_modalidad
+
+###
+# elegir modalidad
+POST {{URL}}/elejir_modalidad
+Content-Type: application/json
+
+{
+    "modalidad": "economia",
+    "modalidad2": "tecnica",
+}
+
+# elegir curso
+POST {{URL}}/elejir_curso
+Content-Type: application/json
+
+{
+    "economia": "1A",
+    "tecnica": "1B",
+}
+
+###
+# Actualizar usuario con id=1
+PUT {{URL}}/actualizar_usuario/1
+Content-Type: application/json
+
+{
+    "nom": "Juan Actualizado"
+}
+
+###
+# Eliminar usuario con id=1
+DELETE {{URL}}/eliminar_usuario/1
