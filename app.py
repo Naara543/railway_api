@@ -116,6 +116,138 @@ def actualizar_usuario(id):
     return response
 
 
+
+#########################################################################
+
+# Proyecto
+
+# Endpoint para registrar la asistencia de un usuario en un día en particular
+@app.route("/nueva_asistencia", methods=["POST"])
+@cross_origin()
+def insertar_asistencia():
+    # Recibe el ID del usuario, la fecha (YYYY-MM-DD) y el estado (Presente/Ausente/Tarde)
+    
+    fecha = request.json["fecha"]
+    estado = request.json["estado"]
+    id_preceptor = request.json["id_preceptor"]
+    id_alumno = request.json["id_alumno"]
+
+    cursor = mysql.connection.cursor()
+    
+    # Query SQL para insertar los datos en la tabla Asistencias
+    sql = "INSERT INTO Asistencia(fecha, estado, preceptor_idpreceptor, Alumno_idAlumno) VALUES (%s, %s, %s, %s);"
+    cursor.execute(sql, (fecha, estado, id_preceptor, id_alumno))
+    
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"resultado": "Asistencia registrada correctamente"})
+
+
+# Endpoint para listar todo el historial de asistencias
+@app.route("/traer_asistencias", methods=["GET"])
+@cross_origin()
+def listar_asistencias():
+    # Usamos INNER JOIN para enlazar la tabla Asistencias con la tabla Usuarios
+    # De este modo, podemos mostrar el nombre y apellido real de quien asistió
+    sql = """
+        SELECT a.idasistencia, a.fecha, a.estado, preceptor_idpreceptor, Alumno_idAlumno
+        FROM Asistencia a
+    """
+
+    cursor = mysql.connection.cursor()
+    cursor.execute(sql)
+    resultado = cursor.fetchall()
+    cursor.close()
+
+    if not resultado:
+        return jsonify([])
+    else:
+        asistencias = []
+        for i in resultado:
+            # Transformamos el objeto de fecha (date) proveniente de MySQL en texto string (YYYY-MM-DD)
+            # para evitar que Flask falle al procesar el formato JSON.
+            fecha_str = i[1].strftime('%Y-%m-%d') if hasattr(i[1], 'strftime') else str(i[1])
+            
+            p = {
+                "id_asistencia": i[0],
+                "fecha": fecha_str,
+                "estado": i[2],
+                "id_preceptor": i[3],
+                "id_alumno":i[4]
+            }
+            asistencias.append(p)
+            
+        return jsonify(asistencias)
+
+#######Preceptor
+@app.route("/preceptor", methods=["POST"])
+@cross_origin()
+def insertar_preceptor():
+    
+    
+    nombre_usuario = request.json["nombre_usuario"]
+    email = request.json["email"]
+    contraseña = request.json["contraseña"]
+
+    cursor = mysql.connection.cursor()
+    
+    # Query SQL para insertar los datos en la tabla Asistencias
+    sql = "INSERT INTO Preceptor(nombre_usuario, email, contraseña) VALUES (%s, %s, %s);"
+    cursor.execute(sql, (nombre_usuario, email, contraseña))
+    
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"resultado": "Preceptor registrado/a correctamente"})
+
+
+
+#######alumno
+@app.route("/alumno", methods=["POST"])
+@cross_origin()
+def insertar_alumno():
+    
+    
+    nombre = request.json["nombre"]
+    apellido = request.json["apellido"]
+    Cursos_idCursos = request.json["Cursos_idCursos"]
+
+    cursor = mysql.connection.cursor()
+    
+    # Query SQL para insertar los datos en la tabla Asistencias
+    sql = "INSERT INTO Alumno(nombre, apellido, Cursos_idCursos) VALUES (%s, %s, %s);"
+    cursor.execute(sql, (nombre, apellido, Cursos_idCursos))
+    
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"resultado": "Alumno registrado/a correctamente"})
+
+
+#Cursos
+#######alumno
+@app.route("/curso", methods=["POST"])
+@cross_origin()
+def aniadir_curso():
+    
+    
+    nombre_curso = request.json["nombre_curso"]
+    modalidad_idmodalidad = request.json["modalidad_idmodalidad"]
+
+    cursor = mysql.connection.cursor()
+    
+    # Query SQL para insertar los datos en la tabla Asistencias
+    sql = "INSERT INTO Cursos(nombre_curso, modalidad_idmodalidad) VALUES (%s, %s);"
+    cursor.execute(sql, (nombre_curso, modalidad_idmodalidad))
+    
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({"resultado": "Curso agregado"})
+
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

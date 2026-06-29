@@ -14,14 +14,11 @@ Content-Type: application/json
     "modalidad2": "tecnica",
 }
 
+###
 # elegir curso
-POST {{URL}}/elejir_curso
+GET {{URL}}/elejir_curso/AB
 Content-Type: application/json
 
-{
-    "economia": "1A",
-    "tecnica": "1B",
-}
 
 ###
 # Actualizar usuario con id=1
@@ -29,7 +26,7 @@ PUT {{URL}}/actualizar_usuario/1
 Content-Type: application/json
 
 {
-    "nom": "Juan Actualizado"
+    "nom": "Asistencia Actualizada"
 }
 
 ###
